@@ -3,6 +3,8 @@ package com.bobocode;
 import com.bobocode.util.ExerciseNotCompletedException;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -30,6 +32,19 @@ public class AccountDbInitializer {
      * @throws SQLException
      */
     public void init() throws SQLException {
-        throw new ExerciseNotCompletedException(); // todo
+        Connection connection = dataSource.getConnection();
+        String SQL = "CREATE TABLE account (" +
+                "    id         BIGINT," +
+                "    first_name varchar(255) NOT NULL," +
+                "    last_name  varchar(255) NOT NULL," +
+                "    gender varchar(255) NOT NULL," +
+                "    email      varchar(255) NOT NULL," +
+                "    birthday   date         NOT NULL," +
+                "    balance DECIMAL(19,4)," +
+                "    creation_time TIMESTAMP DEFAULT NOW() NOT NULL ," +
+                "    CONSTRAINT account_pk PRIMARY KEY (id)," +
+                "    CONSTRAINT account_email_uq UNIQUE (email));";
+        PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+        preparedStatement.execute();
     }
 }

@@ -37,6 +37,12 @@ public class AccountDaoImpl implements AccountDao {
         });
     }
 
+    private Account getAccount(String email, EntityManager entityManager) {
+        TypedQuery<Account> findByEmailQuery = entityManager.createQuery("select a from Account a where a.email = :email", Account.class);
+        findByEmailQuery.setParameter("email", email);
+        return findByEmailQuery.getSingleResult();
+    }
+
     @Override
     public List<Account> findAll() {
         return performReturningWithinPersistenceContext(entityManager ->

@@ -1,12 +1,14 @@
 package com.bobocode.model;
 
 import com.bobocode.util.ExerciseNotCompletedException;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.CascadeType;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -32,17 +34,47 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
+@Entity
+@Table(name = "author")
 public class Author {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+
+    @Column(name = "last_name", nullable = false)
     private String lastName;
-    private Set<Book> books;
+    @Setter(AccessLevel.PRIVATE)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "author_book",
+    joinColumns = @JoinColumn(name = "author_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"))
+    private Set<Book> books = new HashSet<>();
 
     public void addBook(Book book) {
-        throw new ExerciseNotCompletedException();
+        books.add(book);
+        book.getAuthors().add(this);
     }
 
     public void removeBook(Book book) {
-        throw new ExerciseNotCompletedException();
+        books.remove(book);
+        book.getAuthors().remove(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Author)) return false;
+
+        Author author = (Author) o;
+
+        return Objects.equals(id, author.id);
     }
 }

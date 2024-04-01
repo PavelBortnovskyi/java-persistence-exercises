@@ -1,9 +1,13 @@
 package com.bobocode.model;
 
 import com.bobocode.util.ExerciseNotCompletedException;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,17 +28,31 @@ import java.util.List;
  */
 @Getter
 @Setter
+@Entity
+@Table(name = "photo")
+@EqualsAndHashCode(of = "id")
 public class Photo {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "url", nullable = false, unique = true)
     private String url;
+
+    @Column(name = "description")
     private String description;
-    private List<PhotoComment> comments;
+
+    @Setter(AccessLevel.PRIVATE)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "photo")
+    private List<PhotoComment> comments = new ArrayList<>();
 
     public void addComment(PhotoComment comment) {
-        throw new ExerciseNotCompletedException();
+        comment.setPhoto(this);
+        comments.add(comment);
     }
 
     public void removeComment(PhotoComment comment) {
-        throw new ExerciseNotCompletedException();
+        comments.remove(comment);
+        comment.setPhoto(null);
     }
 }
